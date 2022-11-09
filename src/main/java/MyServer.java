@@ -43,10 +43,15 @@ public class MyServer {
 
       StringBuilder sb = new StringBuilder();
       String line = null;
-      while((line=datainputstream.readLine())!=null){
+      do {
+        line = null;
+        line = datainputstream.readLine();
         sb.append(line+"\n");
-        System.out.println("actualMessage:"+line);
-      }
+        if(line != null)
+          System.out.println("actualMessage:"+line);
+        if(line == null)
+          line = "";
+      } while(!line.toUpperCase().equals ("FIM"));
       System.out.println("message:"+sb.toString());
       datainputstream.close();
 
