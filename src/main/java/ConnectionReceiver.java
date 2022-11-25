@@ -7,6 +7,8 @@ public class ConnectionReceiver extends Thread {
   private ServerSocket socket;
   private ArrayList<ClientConnection> clients;
 
+  private ClientCodes clientCodes;
+
   public ConnectionReceiver(String port, ArrayList<ClientConnection> clients) throws Exception{
     if(port == null) throw new Exception("ConnectionReceiver: no port for access");
     try {
@@ -18,6 +20,7 @@ public class ConnectionReceiver extends Thread {
       throw new Exception("ConnectionReceiver: no clients");
     }
     this.clients = clients;
+    this.clientCodes = new ClientCodes();
   }
 
   public void run() {
@@ -33,7 +36,7 @@ public class ConnectionReceiver extends Thread {
       }
       ConnectionHandler connectionHandler = null;
       try {
-        connectionHandler = new ConnectionHandler(connection, clients);
+        connectionHandler = new ConnectionHandler(connection, clients, clientCodes);
       } catch (Exception e) {};
       connectionHandler.start();
     }

@@ -4,14 +4,15 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.net.*;
-import java.util.concurrent.Semaphore;
 
 public class ClientConnection {
   private Socket connection;
   private BufferedReader logger;
   private ObjectOutputStream writer;
 
-  public ClientConnection(Socket connection, BufferedReader logger, ObjectOutputStream writer) throws Exception {
+  private String id;
+
+  public ClientConnection(Socket connection, BufferedReader logger, ObjectOutputStream writer, String id) throws Exception {
     if (connection==null) throw new Exception("Missing connection parameter!");
     if (logger==null) throw new Exception("Missing logger parameter!");
     if (writer==null) throw new Exception("Missing writer parameter!");
@@ -19,6 +20,10 @@ public class ClientConnection {
     this.logger = logger;
     this.writer = writer;
   }
+
+ public void setCpf(String patientCpf) {
+    this.id = new CpfValidator().removeSpecialChars(patientCpf);
+ }
 
   public String readMessage() throws Exception {
     StringBuffer buffer = new StringBuffer();
@@ -60,7 +65,6 @@ public class ClientConnection {
       System.out.println("Sended Message: " + type.toString());
       this.writer.writeObject(type);
       this.writer.flush();
-      System.out.println("Enviou!");
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
@@ -74,5 +78,9 @@ public class ClientConnection {
     } catch (Exception e) {
       throw new Exception("disconnect error");
     }
+  }
+
+  public String getId() {
+    return this.id;
   }
 }
