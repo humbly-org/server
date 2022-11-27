@@ -2,12 +2,13 @@ import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class QueueHandler {
+public class QueueHandler{
   private String queueType;
 
   ArrayList<Patient> queue;
@@ -23,17 +24,20 @@ public class QueueHandler {
   }
 
   public void addOnQueue(Patient patient) throws Exception {
-    if(patient == null) throw new Exception("Null patient!");
+    if (patient == null) throw new Exception("Null patient!");
     this.queue.add(patient);
   }
 
-  public void changeQueue(String patientCpf, QueueHandler newQueue) throws Exception {
-    if(patientCpf == null) throw new Exception("Null patient cpf!");
-    Stream<Patient> arr = this.queue.stream().filter(p -> p.getCpf() == patientCpf);
-    Patient patient = arr.findFirst().get();
+  public Patient changeQueue(String patientCpf, QueueHandler newQueue)
+    throws Exception {
+    if (patientCpf == null) throw new Exception("Null patient cpf!");
+    List<Patient> arr = filter((p -> Objects.equals(p.getCpf(), patientCpf)),
+      this.queue);
+    Patient patient = arr.get(0);
     this.queue.removeIf(p -> p.getCpf() == patientCpf);
-    patient.changeState(newQueue.queueType);
+    patient.changeState(newQueue.getQueueType());
     newQueue.addOnQueue(patient);
+    return patient;
   }
 
   public JSONArray getQueueJSON() {
@@ -44,17 +48,26 @@ public class QueueHandler {
     return jsonArr;
   }
 
-  public boolean containsPatient(String patientCpf) {
-    List<Patient> arr = filter(p -> p.getCpf().equals(new CpfValidator().removeSpecialChars(patientCpf)), this.queue);
-     return arr.size() >= 1;
+  public <T> boolean containsPatient(T cpf) {
+    String patientCpf = cpf.toString();
+    List<Patient> arr = filter(
+      p -> p.getCpf().equals(new CpfValidator().removeSpecialChars(patientCpf)),
+      this.queue);
+    return arr.size() >= 1;
   }
 
   public Patient getPatient(String patientCpf) {
-    List<Patient> arr = filter(p -> p.getCpf().equals(new CpfValidator().removeSpecialChars(patientCpf)), this.queue);
+    List<Patient> arr = filter(
+      p -> p.getCpf().equals(new CpfValidator().removeSpecialChars(patientCpf)),
+      this.queue);
     return arr.get(0);
   }
 
-  public<T> List<T> filter(Predicate<T> criteria, ArrayList<T> list) {
+  public String getQueueType() {
+    return this.queueType;
+  }
+
+  public <T> List<T> filter(Predicate<T> criteria, ArrayList<T> list) {
     return list.stream().filter(criteria).collect(Collectors.<T>toList());
   }
 

@@ -6,39 +6,33 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Patient implements Serializable {
-  private State state;
+  private String state;
   private int order;
   private String name;
   private String cpf;
+  private String severity = "low";
   private LocalDateTime timeJoined;
-
-  @Override
-  public String toString() {
-    return "Pessoa{" +
-      "\"name\"=\"" + name + '\"' +
-      ", \"cpf\"=\"" + cpf + '\"' +
-      ", \"timeJoined\"=\"" + timeJoined + "\"" +
-      '}';
-  }
 
   public JSONObject toJsonObject() {
     JSONObject json = new JSONObject();
-    json.put("order", this.order);
+    json.put("id", this.cpf);
     json.put("name", this.name);
     json.put("cpf", this.cpf);
-    json.put("timeJoined", this.timeJoined.toString());
-    json.put("state", this.state.getActualState());
+    json.put("startAt", this.timeJoined.toString());
+    json.put("queueType", this.state);
+    json.put("severity", this.severity);
+    json.put("queuePosition", this.order);
     return json;
   }
 
-  public Patient(String name, String cpf, int order) throws Exception{
+  public Patient(String name, Object cpf, int order, String state) throws Exception{
     if(!validName(name)) throw new Exception("Invalid name!");
     this.name = name;
     CpfValidator cpfValidator = new CpfValidator();
     if(!cpfValidator.isCPF(cpf)) throw new Exception("Invalid CPF!");
-    this.cpf = new CpfValidator().removeSpecialChars(cpf);
+    this.cpf = new CpfValidator().removeSpecialChars(cpf).toString();
     this.order = order;
-    this.state = new State();
+    this.state = state;
     this.timeJoined = LocalDateTime.now();
   }
 
@@ -55,7 +49,7 @@ public class Patient implements Serializable {
   }
 
   public void changeState(String newState) {
-    this.state.setActualState(newState);
+    this.state = newState;
   }
 
 }

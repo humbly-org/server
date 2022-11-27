@@ -14,7 +14,7 @@ public class Server {
     ArrayList<ClientConnection> clients = new ArrayList<>();
     ConnectionReceiver connectionReceiver = null;
     try {
-      connectionReceiver = new ConnectionReceiver(customPort, clients);
+      connectionReceiver = new ConnectionReceiver(customPort, clients, new MessageHandler());
       connectionReceiver.start();
     } catch (Exception e) {
       System.err.println("Chose the right port for use!");

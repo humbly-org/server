@@ -4,12 +4,11 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class ConnectionReceiver extends Thread {
+  private MessageHandler messageHandler;
   private ServerSocket socket;
   private ArrayList<ClientConnection> clients;
-
   private ClientCodes clientCodes;
-
-  public ConnectionReceiver(String port, ArrayList<ClientConnection> clients) throws Exception{
+  public ConnectionReceiver(String port, ArrayList<ClientConnection> clients, MessageHandler messageHandler) throws Exception{
     if(port == null) throw new Exception("ConnectionReceiver: no port for access");
     try {
       this.socket = new ServerSocket(Integer.parseInt(port));
@@ -21,6 +20,7 @@ public class ConnectionReceiver extends Thread {
     }
     this.clients = clients;
     this.clientCodes = new ClientCodes();
+    this.messageHandler = messageHandler;
   }
 
   public void run() {
@@ -36,7 +36,7 @@ public class ConnectionReceiver extends Thread {
       }
       ConnectionHandler connectionHandler = null;
       try {
-        connectionHandler = new ConnectionHandler(connection, clients, clientCodes);
+        connectionHandler = new ConnectionHandler(connection, clients, clientCodes, messageHandler);
       } catch (Exception e) {};
       connectionHandler.start();
     }

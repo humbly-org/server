@@ -1,7 +1,8 @@
 public class CpfValidator {
 
 
-  public boolean isCPF(String CPF) {
+  public boolean isCPF(Object doc) {
+    String CPF = doc.toString();
 
     CPF = removeSpecialChars(CPF);
 
@@ -57,7 +58,8 @@ public class CpfValidator {
     }
   }
 
-  public String removeSpecialChars(String doc) {
+  public String removeSpecialChars(Object string) {
+    String doc = string.toString();
     if (doc.contains(".")) {
       doc = doc.replace(".", "");
     }

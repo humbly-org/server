@@ -16,12 +16,17 @@ public class ConnectionHandler extends Thread{
 
   private ClientCodes clientCodes;
 
-  public ConnectionHandler(Socket connection ,ArrayList<ClientConnection> clients, ClientCodes clientCodes) throws Exception {
-    if(connection == null) throw new Exception("No socket in ConnectionHandler");
-    if(clients == null) throw new Exception("No clients in ConectionHandler");
+  public ConnectionHandler(
+    Socket connection, ArrayList<ClientConnection> clients,
+    ClientCodes clientCodes, MessageHandler messageHandler
+  ) throws Exception {
+    if (connection == null) {
+      throw new Exception("No socket in ConnectionHandler");
+    }
+    if (clients == null) throw new Exception("No clients in ConectionHandler");
     this.connection = connection;
     this.clients = clients;
-    this.messageHandler = new MessageHandler();
+    this.messageHandler = messageHandler;
     this.clientCodes = clientCodes;
   }
 
@@ -29,46 +34,66 @@ public class ConnectionHandler extends Thread{
     ObjectOutputStream writer = null;
     try {
       writer = new ObjectOutputStream(this.connection.getOutputStream());
-    } catch (Exception e) {return;}
+    }
+    catch (Exception e) {
+      return;
+    }
     BufferedReader logger = null;
     try {
-      logger = new BufferedReader (new InputStreamReader(connection.getInputStream ()));
-    } catch (Exception e) {
+      logger =
+        new BufferedReader(new InputStreamReader(connection.getInputStream()));
+    }
+    catch (Exception e) {
       try {
         writer.close();
-      } catch (Exception error) {}
+      }
+      catch (Exception error) {
+      }
       return;
     }
 
     try {
       this.client = new ClientConnection(this.connection, logger, writer, id);
-    } catch (Exception e) {}
+    }
+    catch (Exception e) {
+    }
     try {
-      synchronized (this.clients) { this.clients.add(this.client);}
-      for (;;) {
+      synchronized (this.clients) {
+        this.clients.add(this.client);
+      }
+      for (; ; ) {
         String text = client.readMessage();
         JSONObject convertedText = new JSONObject(text);
-        if(text == null) return;
+        if (text == null) {
+          return;
+        }
         else {
           try {
-            this.messageHandler.handleMessage(convertedText, client, clientCodes, clients);
-          } catch (Exception e) {
-            JSONObject error = new JSONObject("{\"message\":\"Something wrong on server\"}");
+            this.messageHandler.handleMessage(convertedText, client,
+              clientCodes, clients);
+          }
+          catch (Exception e) {
+            System.out.println(e.getMessage());
+            JSONObject error =
+              new JSONObject("{\"message\":\"Something wrong on server\"}");
             this.sendMessageToAll(error.toString());
           }
 
         }
       }
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       try {
         writer.close();
         logger.close();
-      } catch (Exception error) {}
+      }
+      catch (Exception error) {
+      }
       return;
     }
   }
 
-  public void setCpf(String id){
+  public void setCpf(String id) {
     this.id = new CpfValidator().removeSpecialChars(id);
   }
 
@@ -76,18 +101,19 @@ public class ConnectionHandler extends Thread{
     return this.id;
   }
 
-  public<T> void sendMessage(T message) throws Exception {
+  public <T> void sendMessage(T message) throws Exception {
     this.client.sendMessage(message.toString());
   }
 
   public <T> void sendMessageToAll(T text) throws Exception {
-    if(text == null) return;
+    if (text == null) return;
     synchronized (clients) {
       try {
-        for(ClientConnection client:clients) {
+        for (ClientConnection client : clients) {
           client.sendMessage(text);
         }
-      } catch (Exception e) {
+      }
+      catch (Exception e) {
         System.out.println("sendMessageToAll: erro");
       }
     }
