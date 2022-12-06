@@ -10,6 +10,8 @@ public class ClientConnection{
   private BufferedReader logger;
   private ObjectOutputStream writer;
 
+  private String state;
+
   private String id = "";
 
   public ClientConnection(
@@ -49,6 +51,14 @@ public class ClientConnection{
     catch (SocketTimeoutException e) {
     }
     return buffer.toString();
+  }
+
+  public void changeState(String state) {
+    this.state = state;
+  }
+
+  public String getState() {
+    return this.state;
   }
 
   private boolean isJSONValid(String test) {

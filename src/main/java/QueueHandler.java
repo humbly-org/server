@@ -34,7 +34,7 @@ public class QueueHandler{
     List<Patient> arr = filter((p -> Objects.equals(p.getCpf(), patientCpf)),
       this.queue);
     Patient patient = arr.get(0);
-    this.queue.removeIf(p -> p.getCpf() == patientCpf);
+    this.queue.removeIf(p -> p.getCpf().equals(patientCpf));
     patient.changeState(newQueue.getQueueType());
     newQueue.addOnQueue(patient);
     return patient;
