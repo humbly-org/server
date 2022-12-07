@@ -10,7 +10,7 @@ public class ClientConnection{
   private BufferedReader logger;
   private ObjectOutputStream writer;
 
-  private String state;
+  private String state = "";
 
   private String id = "";
 

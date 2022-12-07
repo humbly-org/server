@@ -74,9 +74,12 @@ public class ConnectionHandler extends Thread{
           }
           catch (Exception e) {
             System.out.println(e.getMessage());
-            JSONObject error =
-              new JSONObject("{\"message\":\"Something wrong on server\"}");
-            this.sendMessageToAll(error.toString());
+            JSONObject serverError = new JSONObject().put("message",
+              e.getMessage());
+            JSONObject errorMessage =
+              new JSONObject().put("message", "errorMessage").put("body",
+                serverError);
+            this.sendMessageToAll(errorMessage.toString());
           }
 
         }

@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Patient implements Serializable {
-  private String state;
+  private String state = "";
   private int order;
   private String name;
   private String cpf;
@@ -29,7 +29,6 @@ public class Patient implements Serializable {
   }
 
   public Patient(String name, Object cpf, int order, String state) throws Exception{
-    if(!validName(name)) throw new Exception("Invalid name!");
     this.name = name;
     CpfValidator cpfValidator = new CpfValidator();
     if(!cpfValidator.isCPF(cpf)) throw new Exception("Invalid CPF!");
@@ -37,13 +36,6 @@ public class Patient implements Serializable {
     this.order = order;
     this.state = state;
     this.timeJoined = LocalDateTime.now();
-  }
-
-  private boolean validName(String name){
-    String expression = "^[a-zA-Z]{4,}(?: [a-zA-Z]+){0,5}$";
-    Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);
-    Matcher matcher = pattern.matcher(name);
-    return matcher.matches();
   }
 
   public boolean isAtended() {

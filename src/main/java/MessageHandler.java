@@ -119,7 +119,7 @@ public class MessageHandler {
     throws Exception {
     if (text == null || clients.size() == 0) return;
     ArrayList<ClientConnection> patients =
-      (ArrayList<ClientConnection>) getPatients(clients);
+      (ArrayList<ClientConnection>) getPatientOnHold(clients);
     synchronized (patients) {
       try {
         for (ClientConnection client : patients) {
@@ -138,6 +138,7 @@ public class MessageHandler {
     try {
       String patientName = (String) patientObject.get("patientName");
       Object patientCpf = patientObject.get("patientCpf");
+      connection.changeState("onHold");
       if (onHoldQueue.containsPatient(patientCpf)) {
         String res = this.generateMessage("enterQueueRes",
           new JSONObject().put("message", "Allready on Queue"));
@@ -289,7 +290,7 @@ public class MessageHandler {
           this.inProgressQueue);
         ClientConnection patientConection =
           this.getPatientConnection(patientCpf, clients);
-        patientConection.changeState("onHold");
+        patientConection.changeState("inProgress");
         if(requestedOrigin.equals("HOSPITAL")) updatedPatient.patientAtendetAt();
         JSONObject data = new JSONObject();
         data.put("state", "inProgress");
@@ -412,9 +413,8 @@ public class MessageHandler {
   }
 
   private List<ClientConnection> getPatientOnHold(ArrayList<ClientConnection> clients) throws Exception {
-    List<ClientConnection> patients = filter(c -> !(c.getId().equals(
-      "HOSPITAL") && c.getState().equals("onHold")),
-      clients);
+    List<ClientConnection> patients = new ArrayList<>(clients);
+    patients.removeIf(p -> p.getId().equals("HOSPITAL") || !p.getState().equals("onHold"));
     if (patients.size() > 0) return patients;
     throw new Exception("Sem clientes conectados!");
   }
